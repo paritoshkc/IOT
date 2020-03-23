@@ -33,7 +33,6 @@ if __name__ == '__main__':
     
     endPt = "a37g54y6ddcht7-ats.iot.us-east-1.amazonaws.com"
     clientId = "samples-client-id"
-    topic="weather/get"
     
     api_key = "2f30e9abf594e715af4449414b055800"
     base_url = "http://api.openweathermap.org/data/2.5/weather?"
@@ -100,6 +99,7 @@ if __name__ == '__main__':
             writer.writerow([datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), current_temperature, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise)),
                              time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunset)), weather_description])
             
+        topic="weather/get"
         message = {
             'sunrise': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise)),
             'sunset': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunset)),
@@ -114,6 +114,23 @@ if __name__ == '__main__':
             topic=topic,
             payload=message,
             qos=mqtt.QoS.AT_LEAST_ONCE)
+        
+        topic_sunrise = "Sunrise"
+        message_sunrise = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise))
+        print("Publishing message to topic '{}': {}".format(topic_sunrise, message_sunrise))
+        mqtt_connection.publish(
+            topic=topic_sunrise,
+            payload=message_sunrise,
+            qos=mqtt.QoS.AT_LEAST_ONCE)
+        
+        topic_sunset = "Sunset"
+        message_sunset = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise))
+        print("Publishing message to topic '{}': {}".format(topic_sunset, message_sunset))
+        mqtt_connection.publish(
+            topic=topic_sunset,
+            payload=message_sunset,
+            qos=mqtt.QoS.AT_LEAST_ONCE)
+        
         # Disconnect
         print("Disconnecting...")
         disconnect_future = mqtt_connection.disconnect()
