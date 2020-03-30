@@ -73,9 +73,10 @@ public class ManualControl extends Fragment {
     String message;
 
     TextView textViewStatus;
-    JSONObject jsonSwitch = new JSONObject();
-    JSONObject jsonDesired = new JSONObject();
-    JSONObject jsonState = new JSONObject();
+    String topicBulb;
+    String topicBlind;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,6 +86,9 @@ public class ManualControl extends Fragment {
         initializeMobileClient();
         View v = inflater.inflate(R.layout.fragment_manual_control, container, false);
         textViewStatus = v.findViewById(R.id.textViewStatus);
+
+        topicBulb = "Bulb/state";
+        topicBlind = "Blind/state";
 
         textViewStatus.addTextChangedListener(new TextWatcher() {
             @Override
@@ -99,16 +103,11 @@ public class ManualControl extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                Toast.makeText(getContext(),"On"+textViewStatus.getText().toString(),Toast.LENGTH_LONG).show();
                 if(textViewStatus.getText().toString().equalsIgnoreCase("Connected"))
                 {
-                    subscribeToTopics("$aws/things/Bulb/shadow/get");
-                    subscribeToTopics("$aws/things/Bulb/shadow/get/accepted");
-                    subscribeToTopics("$aws/things/Bulb/shadow/get/rejected");
-                    subscribeToTopics("$aws/things/Bulb/shadow/update");
-                    subscribeToTopics("$aws/things/Bulb/shadow/update/accepted");
-                    subscribeToTopics("$aws/things/Bulb/shadow/update/rejected");
-                    mqttManager.publishString("", "$aws/things/Bulb/shadow/get", AWSIotMqttQos.QOS0);
+                    subscribeToTopics(topicBulb);
+                    subscribeToTopics(topicBlind);
+//                    mqttManager.publishString("", "$aws/things/Bulb/shadow/get", AWSIotMqttQos.QOS0);
                 }
             }
         });
@@ -117,24 +116,20 @@ public class ManualControl extends Fragment {
         blind = (Switch)v.findViewById(R.id.blindToggle);
 
 
-        final String lightMessage = "Light";
-        final String blindMessage = "Blind";
-
-
         light.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(light.isChecked())
                 {
                     message = "on";
-                    Toast.makeText(getActivity(),"Light ON",Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(),"Light ON",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     message = "off";
-                    Toast.makeText(getActivity(),"Light OFF",Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(),"Light OFF",Toast.LENGTH_SHORT).show();
                 }
-                lightPublish(message,lightMessage);
+                publishMessage(topicBulb,message);
             }
         });
 
@@ -144,38 +139,24 @@ public class ManualControl extends Fragment {
                 if(blind.isChecked())
                 {
                     message = "on";
-                    Toast.makeText(getActivity(),"Blind ON",Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(),"Blind ON",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
                     message = "off";
-                    Toast.makeText(getActivity(),"Blind OFF",Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(),"Blind OFF",Toast.LENGTH_SHORT).show();
                 }
-                blindPublish(message,blindMessage);
+                publishMessage(topicBlind,message);
 
             }
         });
         return v;
     }
 
-    private void blindPublish(String message, String blindMessage) {
+    private void publishMessage(String topic, String message) {
         try {
-            jsonSwitch.put("power",message);
-            jsonDesired.put("desired",jsonSwitch);
-            jsonState.put("state",jsonDesired);
 
-            mqttManager.publishString(jsonState.toString(), "$aws/things/Bulb/shadow/update", AWSIotMqttQos.QOS0);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Publish error.", e);
-        }
-    }
-
-    private void lightPublish(String message, String lightMessage) {
-        try {
-            jsonSwitch.put("power",message);
-            jsonDesired.put("desired",jsonSwitch);
-            jsonState.put("state",jsonDesired);
-            mqttManager.publishString(jsonState.toString(), "$aws/things/Bulb/shadow/update", AWSIotMqttQos.QOS0);
+            mqttManager.publishString(message, topic, AWSIotMqttQos.QOS0);
         } catch (Exception e) {
             Log.e(LOG_TAG, "Publish error.", e);
         }
@@ -320,7 +301,6 @@ public class ManualControl extends Fragment {
     private void connectToMqtt(){
 
         Log.d(LOG_TAG, "clientId = " + clientId);
-        Toast.makeText(getContext(),"inside connectToMqtt()",Toast.LENGTH_LONG).show();
         try {
             mqttManager.connect(clientKeyStore, new AWSIotMqttClientStatusCallback() {
                 @Override
@@ -333,7 +313,6 @@ public class ManualControl extends Fragment {
                                 public void run() {
 
                                     Log.d(LOG_TAG, "run: " + status);
-                                    Toast.makeText(getContext(),status.toString(),Toast.LENGTH_LONG).show();
                                     textViewStatus.setText(status.toString());
                                     textViewStatus.setEnabled(true);
                                     if (throwable != null) {
@@ -369,29 +348,24 @@ public class ManualControl extends Fragment {
                                             Log.d(LOG_TAG, "Message arrived:");
                                             Log.d(LOG_TAG, "   Topic: " + topic);
                                             Log.d(LOG_TAG, " Message: " + message);
-                                            Toast.makeText(getContext(),topic,Toast.LENGTH_LONG).show();
 
-                                            JSONObject jsonStateOutput = new JSONObject(message);
-                                            JSONObject jsonDesiredOutput = jsonStateOutput.getJSONObject("state");
-                                            JSONObject jsonPowerOutput = jsonDesiredOutput.getJSONObject("desired");
-                                            String power = jsonPowerOutput.getString("power");
-
-                                            if(power.equalsIgnoreCase("on"))
+                                            if(topic.equalsIgnoreCase(topicBulb))
                                             {
-                                                light.setChecked(true);
-                                                blind.setChecked(true);
+                                                if(message.equalsIgnoreCase("on"))
+                                                    light.setChecked(true);
+                                                else
+                                                    light.setChecked(false);
                                             }
-                                            else
+                                            else if(topic.equalsIgnoreCase(topicBlind))
                                             {
-                                                light.setChecked(false);
-                                                blind.setChecked(false);
+                                                if(message.equalsIgnoreCase("on"))
+                                                    blind.setChecked(true);
+                                                else
+                                                    blind.setChecked(false);
                                             }
 
-                                            Log.d(LOG_TAG, "run: " + jsonStateOutput);
                                         } catch (UnsupportedEncodingException e) {
                                             Log.e(LOG_TAG, "Message encoding error.", e);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
                                         }
                                     }
                                 });
