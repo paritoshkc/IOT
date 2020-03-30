@@ -91,15 +91,7 @@ if __name__ == '__main__':
         sunrise = sun_times['sunrise']
         sunset = sun_times['sunset']
 
-        # Writing the data to a csv file
-
-        with open('weather_data.csv', mode='w') as file:
-            writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(['updated_time', 'temperature', 'sunrise', 'sunset', 'description'])
-            writer.writerow([datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), current_temperature, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise)),
-                             time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunset)), weather_description])
-            
-        topic="weather/get"
+        topic="Weather"
         message = {
             'sunrise': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise)),
             'sunset': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunset)),
@@ -112,23 +104,7 @@ if __name__ == '__main__':
         print("Publishing message to topic '{}': {}".format(topic, message))
         mqtt_connection.publish(
             topic=topic,
-            payload=message,
-            qos=mqtt.QoS.AT_LEAST_ONCE)
-        
-        topic_sunrise = "Sunrise"
-        message_sunrise = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise))
-        print("Publishing message to topic '{}': {}".format(topic_sunrise, message_sunrise))
-        mqtt_connection.publish(
-            topic=topic_sunrise,
-            payload=message_sunrise,
-            qos=mqtt.QoS.AT_LEAST_ONCE)
-        
-        topic_sunset = "Sunset"
-        message_sunset = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(sunrise))
-        print("Publishing message to topic '{}': {}".format(topic_sunset, message_sunset))
-        mqtt_connection.publish(
-            topic=topic_sunset,
-            payload=message_sunset,
+            payload=str(message),
             qos=mqtt.QoS.AT_LEAST_ONCE)
         
         # Disconnect
