@@ -556,47 +556,6 @@ void flickrLight(int channelId)
     digitalWrite(led2BPin, LOW);
   }
 
-  //ledcWrite(channelId, 0);
+  
   CURRENT_BULB_STATE = BULB_OFF_STATE;
 }
-
-//void servo_rotate(int flag) {
-//  Serial.println("Servo Rotate");
-//  if (flag)
-//  {
-//    Serial.println("Servo Rotate On");
-//    servo.write(0); 
-//    delay(500);
-//  }
-//  else
-//  {
-//    Serial.println("Servo Rotate Off");
-//    servo.write(180);
-//    delay(500);
-//  }
-//
-//}
-
-//void sendJsonToAWS()
-//{
-//  
-//  Serial.println("Publishing message ");
-//  StaticJsonDocument<128> jsonDoc;
-//  JsonObject stateObj = jsonDoc.createNestedObject("state");
-//  JsonObject reportedObj = stateObj.createNestedObject("reported");
-//  
-//  // Write the temperature & humidity. Here you can use any C++ type (and you can refer to variables)
-//  reportedObj["Detection"] = "YES";
-//  reportedObj["wifi_strength"] = WiFi.RSSI();
-//  
-//  // Create a nested object "location"
-//  JsonObject locationObj = reportedObj.createNestedObject("location");
-//  locationObj["name"] = "Garden";
-//
-//  Serial.println("Publishing message to AWS...");
-//  //serializeJson(doc, Serial);
-//  char jsonBuffer[512];
-//  serializeJson(jsonDoc, jsonBuffer);
-//
-//  client_aws.publish(INTRUSION_STATE, jsonBuffer);
-//}
