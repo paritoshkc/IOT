@@ -19,6 +19,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,6 +89,7 @@ public class OutOfHome extends Fragment {
     String topicIntrusion;
 
     Switch outOfHome;
+    TextView tvIntrusion;
 
     View v;
     @Override
@@ -101,18 +104,21 @@ public class OutOfHome extends Fragment {
         notificationManagerCompat = NotificationManagerCompat.from(getContext());
 
         outOfHome = (Switch) v.findViewById(R.id.outOfHomeToggle);
+        tvIntrusion = (TextView) v.findViewById(R.id.tvIntrusion);
 
         outOfHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(outOfHome.isChecked())
                 {
-                    message = "on";
+                    message = "yes";
 //                    Toast.makeText(getActivity(),"Light ON",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    message = "off";
+                    message = "no";
+                    tvIntrusion.setVisibility(View.INVISIBLE);
+                    tvIntrusion.clearAnimation();
 //                    Toast.makeText(getActivity(),"Light OFF",Toast.LENGTH_SHORT).show();
                 }
                 publishMessage(topicOut,message);
@@ -320,16 +326,26 @@ public class OutOfHome extends Fragment {
 
                                             if(topic.equalsIgnoreCase(topicIntrusion))
                                             {
-                                                if(message.equalsIgnoreCase("on"))
+                                                if(message.equalsIgnoreCase("yes"))
                                                 {
-                                                    Notification notification = new NotificationCompat.Builder(getContext(),"yes")
+                                                    /*Notification notification = new NotificationCompat.Builder(getContext(),"yes")
                                                             .setSmallIcon(R.drawable.ic_warning)
                                                             .setContentTitle("Intrusion")
                                                             .setContentText("Intrusion Detected In Your House")
                                                             .setPriority(NotificationCompat.PRIORITY_HIGH)
                                                             .setCategory(NotificationCompat.CATEGORY_ALARM)
                                                             .build();
-                                                    notificationManagerCompat.notify(1,notification);
+                                                    notificationManagerCompat.notify(1,notification);*/
+
+                                                    tvIntrusion.setText("Intrusion Detected!!");
+                                                    tvIntrusion.setVisibility(View.VISIBLE);
+
+                                                    Animation anim = new AlphaAnimation(0.0f, 1.0f);
+                                                    anim.setDuration(100);
+                                                    anim.setStartOffset(20);
+                                                    anim.setRepeatMode(Animation.REVERSE);
+                                                    anim.setRepeatCount(Animation.INFINITE);
+                                                    tvIntrusion.startAnimation(anim);
                                                 }
                                             }
 

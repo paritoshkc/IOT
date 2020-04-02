@@ -138,12 +138,12 @@ public class ManualControl extends Fragment {
             public void onClick(View v) {
                 if(blind.isChecked())
                 {
-                    message = "on";
+                    message = "open";
 //                    Toast.makeText(getActivity(),"Blind ON",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    message = "off";
+                    message = "close";
 //                    Toast.makeText(getActivity(),"Blind OFF",Toast.LENGTH_SHORT).show();
                 }
                 publishMessage(topicBlind,message);
@@ -358,7 +358,7 @@ public class ManualControl extends Fragment {
                                             }
                                             else if(topic.equalsIgnoreCase(topicBlind))
                                             {
-                                                if(message.equalsIgnoreCase("on"))
+                                                if(message.equalsIgnoreCase("open"))
                                                     blind.setChecked(true);
                                                 else
                                                     blind.setChecked(false);

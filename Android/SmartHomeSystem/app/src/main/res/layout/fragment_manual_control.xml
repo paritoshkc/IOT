@@ -77,7 +77,7 @@
                 android:layout_marginBottom="10dp"
                 android:fontFamily="sans-serif-condensed"
                 android:thumb="@drawable/blindswitch"
-                android:track="@drawable/lighttrack"/>
+                android:track="@drawable/blindtrack"/>
 
         </LinearLayout>
 
